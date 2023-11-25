@@ -52,7 +52,7 @@
 
     - name: deploy the java web application
       copy:
-        src: /path/to/my/app.war
+        src: ~/workspace/jenkins-ansible/target/*.war
         dest: /opt/tomcat9/webapps/
       notify: restart tomcat
 
