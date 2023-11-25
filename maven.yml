@@ -37,7 +37,7 @@
       dest: "~/apache-maven-3.9.0-bin.tar.gz"
 
   - name: unarchive the maven package to /opt folder
-    unarchive:
+    ansible.builtin.unarchive:
       src: "~/apache-maven-3.9.0-bin.tar.gz"
       dest: /opt
       remote_src: yes
@@ -48,24 +48,29 @@
       src: /opt/apache-maven-3.9.0
       dest: /opt/maven
       state: link
+    become: yes
 
   - name: create a script file named maven.sh
-    copy:
+    ansible.builtin.copy:
       content: |
         export M2_HOME=/opt/maven
         export PATH=${M2_HOME}/bin:${PATH}
       dest: /etc/profile.d/maven.sh
       remote_src: yes
+    become: yes
 
   - name: add execute permission to the maven.sh script
     file:
       path: /etc/profile.d/
       mode: '0777'
       recurse: yes
+    become: yes
 
   - name: source the script for change to take immediate effect
-    cmd: "cd /etc/profile.d/ && source maven.sh"
-    executable: /bin/bash
+    ansible.builtin.shell:
+      cmd: "cd /etc/profile.d/ && source maven.sh"
+      executable: /bin/bash
+    become: yes
 
   - name: get maven version
     command: "mvn -version"
@@ -74,4 +79,5 @@
   - name: display maven version
     debug:
       var: maven_version_output.stdout_lines
+      
 ...
