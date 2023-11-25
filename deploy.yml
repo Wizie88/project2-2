@@ -4,51 +4,62 @@
   become: yes
 
   tasks:
-  - name: install git
-    package:
-      name: git
-      state: present
+    - name: install git
+      package:
+        name: git
+        state: present
 
-  - name: update apt package cache
-    apt:
-      update_cache: yes
-    when: ansible_os_family == "Debian"
+    - name: update apt package cache
+      apt:
+        update_cache: yes
+      when: ansible_os_family == "Debian"
 
-  - name: install java for centos 
-    yum:
-      name: java-11-openjdk
-      state: present
-    when: ansible_distribution == "centos"
+    - name: install java for centos 
+      yum:
+        name: java-11-openjdk
+        state: present
+      when: ansible_distribution == "centos"
 
-  - name: install java for centos
-    dnf:
-      name: java-17-amazon-corretto
-      state: present
-    when: ansible_distribution == "Amazon"
+    - name: install java for centos
+      dnf:
+        name: java-17-amazon-corretto
+        state: present
+      when: ansible_distribution == "Amazon"
 
- - name: Download Apache Tomcat binary
-   get_url:
-    url: "https://downloads.apache.org/tomcat/tomcat-9/v9.0.59/bin/apache-tomcat-9.0.59.tar.gz"
-    dest: "/tmp/apache-tomcat-9.0.59.tar.gz"
+    - name: Download Apache Tomcat binary
+      get_url:
+        url: "https://downloads.apache.org/tomcat/tomcat-9/v9.0.59/bin/apache-tomcat-9.0.59.tar.gz"
+        dest: "/tmp/apache-tomcat-9.0.59.tar.gz"
 
-- name: Extract Apache Tomcat
-  ansible.builtin.unarchive:
-    src: "/tmp/apache-tomcat-9.0.59.tar.gz"
-    dest: "/opt/"
+    - name: Extract Apache Tomcat
+      ansible.builtin.unarchive:
+        src: "/tmp/apache-tomcat-9.0.59.tar.gz"
+        dest: "/opt/"
 
-- name: Set environment variables for Tomcat
-  ansible.builtin.lineinfile:
-    path: "/etc/environment"
-    line: "CATALINA_HOME=/opt/apache-tomcat-9.0.59"
-  become: yes
-  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian'
+    - name: Set environment variables for Tomcat
+      ansible.builtin.lineinfile:
+        path: "/etc/environment"
+        line: "CATALINA_HOME=/opt/apache-tomcat-9.0.59"
+      become: yes
+      when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian'
 
-- name: Set environment variables for Tomcat
-  ansible.builtin.lineinfile:
-    path: "/etc/environment"
-    line: "CATALINA_HOME=/opt/apache-tomcat-9.0.59"
-  become: yes
-  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat'
+    - name: Set environment variables for Tomcat
+      ansible.builtin.lineinfile:
+        path: "/etc/environment"
+        line: "CATALINA_HOME=/opt/apache-tomcat-9.0.59"
+      become: yes
+      when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat'
 
+    - name: deploy the java web application
+      copy:
+        src: /path/to/my/app.war
+        dest: /opt/tomcat9/webapps/
+      notify: restart tomcat
+
+  handlers:
+    - name: restart tomcat
+      service:
+        name: tomcat9
+        state: restarted
 
 ...
