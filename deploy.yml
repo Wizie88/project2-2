@@ -4,11 +4,34 @@
   become: yes
 
   tasks:
+  - name: install git
+    package:
+      name: git
+      state: present
+
   - name: update apt package cache
     apt:
       update_cache: yes
     when: ansible_os_family == "Debian"
-    
+
+- name: install java for centos 
+  yum:
+    name: java-11-openjdk
+    state: present
+  when: ansible_distribution == "centos"
+
+- name: install java for centos
+  dnf:
+    name: java-17-amazon-corretto
+    state: present
+  when: ansible_distribution == "Amazon"
+
+- name: Install Java
+  package:
+    name: openjdk-8-jdk
+    state: present
+  when: ansible_os_family == "Debian"
+
   - name: install Apache on Debian family
     apt:
       name: apache2

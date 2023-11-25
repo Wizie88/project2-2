@@ -1,0 +1,77 @@
+---
+- name: install Http server
+  hosts: localhost
+  become: yes
+
+  tasks:
+  - name: install git
+    package:
+      name: git
+      state: present
+# tasks file for java_install
+#- name: Install Java
+# raw: test -e /usr/bin/dnf || (yum -y install dnf; dnf clean all)
+# when: ansible_distribution == "Amazon"
+
+  - name: install java for centos 
+    yum:
+      name: java-17-openjdk
+      state: present
+    when: ansible_distribution == "centos"
+
+  - name: install java for centos
+    dnf:
+      name: java-17-amazon-corretto-devel
+      state: present
+    when: ansible_distribution == "Amazon"
+
+  - name: Install Java
+    package:
+      name: openjdk-17-jdk
+      state: present
+    when: ansible_os_family == "Debian"
+
+  - name: get download link of maven package
+    get_url:
+      url: "https://dlcdn.apache.org/maven/maven-3/3.9.0/binaries/apache-maven-3.9.0-bin.tar.gz"
+      dest: "~/apache-maven-3.9.0-bin.tar.gz"
+
+  - name: unarchive the maven package to /opt folder
+    unarchive:
+      src: "~/apache-maven-3.9.0-bin.tar.gz"
+      dest: /opt
+      remote_src: yes
+    become: yes
+
+  - name: create a symbolic link to the maven folder
+    file:
+      src: /opt/apache-maven-3.9.0
+      dest: /opt/maven
+      state: link
+
+  - name: create a script file named maven.sh
+    copy:
+      content: |
+        export M2_HOME=/opt/maven
+        export PATH=${M2_HOME}/bin:${PATH}
+      dest: /etc/profile.d/maven.sh
+      remote_src: yes
+
+  - name: add execute permission to the maven.sh script
+    file:
+      path: /etc/profile.d/
+      mode: '0777'
+      recurse: yes
+
+  - name: source the script for change to take immediate effect
+    cmd: "cd /etc/profile.d/ && source maven.sh"
+    executable: /bin/bash
+
+  - name: get maven version
+    command: "mvn -version"
+    register: maven_version_output
+
+  - name: display maven version
+    debug:
+      var: maven_version_output.stdout_lines
+...
