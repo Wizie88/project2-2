@@ -24,7 +24,6 @@ pipeline {
                     def repositoryUrl = 'https://github.com/Wizie88/project2-2.git'
                     // execute ansible playbook
                     sh "ansible-playbook -i localhost, ${ansiblePlaybookPath}"
-                    )
                 }
             }
         }
