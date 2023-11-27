@@ -30,7 +30,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'mvn clean install'
+                //sh 'mvn clean install'
                 // Build your Java web application (e.g., using Maven or Gradle)
                 sh 'mvn clean package' // Adjust this command based on your build tool
                 sh 'ls -la target'
