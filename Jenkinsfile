@@ -13,24 +13,25 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Check out your source code from version control (e.g., Git)
-                checkout scm
+                git 'https://github.com/Wizie88/project2-2.git'
             }
         }
 
-        stage('Run Ansible') {
+        stage('Run Ansible to install maven') {
             steps {
                 script {
-                // Ensure the Ansible binary is in the PATH
-                ansibleHome = tool 'ansible'
-                ansiblePlaybook = "${ansibleHome}/bin/ansible-playbook"
-                // Execute the Ansible playbook
-                sh "${ansiblePlaybook} -i inventory_file ${PLAYBOOK_PATH}"
+                    def ansiblePlaybookPath = 'maven.yml'
+                    def repositoryUrl = 'https://github.com/Wizie88/project2-2.git'
+                    // execute ansible playbook
+                    sh "ansible-playbook -i localhost, ${ansiblePlaybookPath}"
+                    )
                 }
             }
-        }       
+        }
 
         stage('Build') {
             steps {
+                sh 'mvn clean install'
                 // Build your Java web application (e.g., using Maven or Gradle)
                 sh 'mvn clean package' // Adjust this command based on your build tool
                 sh 'ls -la target'
@@ -48,11 +49,20 @@ pipeline {
             steps {
                 // Copy the built WAR file to Tomcat's webapps directory
                script { // Copy the WAR file to Tomcat's webapps directory
-                    sh "cp ${WAR_FILE_PATH} ${TOMCAT_WEBAPPS_DIR}/${APP_NAME}.war"
+                    ansiblePlaybook credentialsId: 'f4', disableHostKeyChecking: true, installation: 'project2-1', inventory: 'hosts2.ini', playbook: 'deploy2yml', vaultTmpPath: ''
                 }
                 
                  
             }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline succeeded. App deployed successfully.'
+        }
+        failure {
+            echo 'Pipeline failed. Check logs for details.'
         }
     }
 }
