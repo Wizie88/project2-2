@@ -3,7 +3,7 @@ pipeline {
 
     //tools {
      //   maven 'maven'
-    }
+   // }
     environment {
         ANSIBLE_HOME = "/path/to/ansible"
         PLAYBOOK_PATH = "path/to/your/playbook.yml"
